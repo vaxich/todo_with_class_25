@@ -1,7 +1,7 @@
 .App {
   padding: 30px;
   display: flex;
-  background-color: aliceblue;
+  background-color: lemonchiffon;
   height: 100vh;
 }
 
@@ -15,6 +15,26 @@
   border-radius: 5px;
   padding: 15px;
   height: max-content;
+}
+.task {
+  font-weight: bold;
+
+}
+
+.task_done {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.btn_active {
+  background-color: chocolate;
+  color: white;
+  border-radius: 3px;
+  border: 2px solid chocolate;
+}
+.input_error {
+  border: 2px solid red;
+  outline: none;
 }
 
 

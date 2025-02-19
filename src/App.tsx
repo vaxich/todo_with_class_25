@@ -59,7 +59,16 @@ function App() {
       isDone: false
     }
    
-    setTasks([...tasks, newTask])// копируем таски и создаём и сразу добавляем новый объект
+    setTasks([newTask, ...tasks])// копируем таски и создаём и сразу добавляем новый объект
+  }
+
+  const changeTaskStatus = (taskId: string) => {
+
+
+    let newTasks = tasks.map(task => task.id === taskId 
+      ? {...task, isDone: !task.isDone} 
+      : task)
+      setTasks(newTasks)
   }
 
   return (
@@ -67,8 +76,10 @@ function App() {
       <TodoList
         title={TodolistTitle}
         tasks={filteredTasks}
+        filterValue={filterValue}
         removeTask={removeTask}
         addTask = {addTask}
+        changeTaskStatus = {changeTaskStatus}
         changeFilter={changeFilter} />
     </div>
   );

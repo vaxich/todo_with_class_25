@@ -14,16 +14,19 @@ export type TaskType = {
 type TodolistPropsType = {
   title: string
   tasks: Array<TaskType>
+  filterValue: FiltersType
   removeTask: (taskId: string) => void
   changeFilter: (newFilterValue: FiltersType) => void
   addTask: (newTaskTitle: string) => void
+  changeTaskStatus: (taskId: string) => void
 }
 
 export const TodoList = (props: TodolistPropsType) => {
 
   const [inputValue, setInputValue] = useState("");
+  const [inputError, setinputError] = useState(false);
 
-  const { title, tasks, removeTask, changeFilter, addTask } = props
+  const { title, tasks, removeTask, changeFilter, addTask, changeTaskStatus, filterValue } = props
 
   const onCkickRemoveTaskHandler = (taskId: string) => {
     removeTask(taskId)
@@ -37,7 +40,13 @@ export const TodoList = (props: TodolistPropsType) => {
 
 
   const addTaskOnClick = () => {
-    addTask(inputValue)
+    const trimmedTitle = inputValue.trim()
+    if (trimmedTitle) {
+      addTask(trimmedTitle)
+    } else {
+      setinputError(true)
+    }
+    
     setInputValue("")
   }
 
@@ -46,12 +55,18 @@ export const TodoList = (props: TodolistPropsType) => {
   }
 
   const onChangeSetNewTitle = (el: ChangeEvent<HTMLInputElement>) => {
+    inputError && setinputError(false)
     setInputValue(el.target.value)
   }
 
 
   const isAddBtnDisabled = !inputValue || inputValue.length > 15
-  const messageForUser = inputValue.length <= 15 ? <span>введите новыю таску</span> : <span style={{ color: "red" }}>максимум 15 символов</span>
+  
+  const messageForUser = inputError
+  ? <span style={{ color: "red" }}>наименование не может быть пустым</span>
+  : inputValue.length <= 15
+    ? <span>введите новыю таску</span>
+    : <span style={{ color: "red" }}>максимум 15 символов</span>
 
   return (
     <div className='todolist'>
@@ -62,6 +77,7 @@ export const TodoList = (props: TodolistPropsType) => {
           value={inputValue}
           onChange={onChangeSetNewTitle}
           onKeyDown={onKeyDownAddTask}
+          className={inputError ? "input_error" : ""}
         />
         <button
           disabled={isAddBtnDisabled}
@@ -81,8 +97,13 @@ export const TodoList = (props: TodolistPropsType) => {
           : tasks.map(task => {
             return (
               <li key={task.id}>
-                <input type={"checkbox"} checked={task.isDone} />
-                <span>{task.title}</span>
+                <input
+                  type={"checkbox"}
+                  checked={task.isDone}
+                  onChange={() => { changeTaskStatus(task.id) }}
+                  
+                />
+                <span className={task.isDone ? "task_done" : "task"} >{task.title}</span>
                 <button onClick={() => onCkickRemoveTaskHandler(task.id)}>X</button>
               </li>
             )
@@ -91,9 +112,18 @@ export const TodoList = (props: TodolistPropsType) => {
 
       </ul>
       <div>
-        <button onClick={() => onClickChangeFilter("All")}>All</button>
-        <button onClick={() => onClickChangeFilter("Active")}>Active</button>
-        <button onClick={() => onClickChangeFilter("Completed")}>Completed</button>
+        <button
+          onClick={() => onClickChangeFilter("All")}
+          className={filterValue === 'All' ? "btn_active" : ""}
+        >All</button>
+        <button
+          onClick={() => onClickChangeFilter("Active")}
+          className={filterValue === 'Active' ? "btn_active" : ""}
+        >Active</button>
+        <button
+          onClick={() => onClickChangeFilter("Completed")}
+          className={filterValue === 'Completed' ? "btn_active" : ""}
+        >Completed</button>
       </div>
     </div>
   )
