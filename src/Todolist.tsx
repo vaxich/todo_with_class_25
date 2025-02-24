@@ -6,19 +6,21 @@ import './App.css';
 
 export type TaskType = {
   id: string
-  isDone: boolean
   title: string
+  isDone: boolean
 
 }
 
 type TodolistPropsType = {
+  todolistId: string
   title: string
   tasks: Array<TaskType>
   filterValue: FiltersType
-  removeTask: (taskId: string) => void
-  changeFilter: (newFilterValue: FiltersType) => void
-  addTask: (newTaskTitle: string) => void
-  changeTaskStatus: (taskId: string) => void
+  removeTask: (todolistId: string, taskId: string) => void
+  changeFilter: (todolistId: string, newFilterValue: FiltersType) => void
+  addTask: (todolistId: string, newTaskTitle: string) => void
+  changeTaskStatus: (todolistId: string, taskId: string) => void
+  removeTodolist: (todolistId: string) => void
 }
 
 export const TodoList = (props: TodolistPropsType) => {
@@ -26,14 +28,18 @@ export const TodoList = (props: TodolistPropsType) => {
   const [inputValue, setInputValue] = useState("");
   const [inputError, setinputError] = useState(false);
 
-  const { title, tasks, removeTask, changeFilter, addTask, changeTaskStatus, filterValue } = props
+  const { title, tasks, todolistId, removeTask, changeFilter, addTask, changeTaskStatus, removeTodolist, filterValue } = props
 
   const onCkickRemoveTaskHandler = (taskId: string) => {
-    removeTask(taskId)
+    removeTask(todolistId, taskId)
   }
 
   const onClickChangeFilter = (newFilterValue: FiltersType) => {
-    changeFilter(newFilterValue)
+    changeFilter(todolistId, newFilterValue)
+  }
+
+  const removeTodolistHandler = () => {
+    removeTodolist(todolistId)
   }
 
 
@@ -42,11 +48,11 @@ export const TodoList = (props: TodolistPropsType) => {
   const addTaskOnClick = () => {
     const trimmedTitle = inputValue.trim()
     if (trimmedTitle) {
-      addTask(trimmedTitle)
+      addTask(todolistId, trimmedTitle)
     } else {
       setinputError(true)
     }
-    
+
     setInputValue("")
   }
 
@@ -61,16 +67,17 @@ export const TodoList = (props: TodolistPropsType) => {
 
 
   const isAddBtnDisabled = !inputValue || inputValue.length > 15
-  
+
   const messageForUser = inputError
-  ? <span style={{ color: "red" }}>наименование не может быть пустым</span>
-  : inputValue.length <= 15
-    ? <span>введите новыю таску</span>
-    : <span style={{ color: "red" }}>максимум 15 символов</span>
+    ? <span style={{ color: "red" }}>наименование не может быть пустым</span>
+    : inputValue.length <= 15
+      ? <span>введите новыю таску</span>
+      : <span style={{ color: "red" }}>максимум 15 символов</span>
 
   return (
     <div className='todolist'>
       <h3>{title}</h3>
+      <button onClick={removeTodolistHandler}>X</button>
       <div>
 
         <input
@@ -100,8 +107,8 @@ export const TodoList = (props: TodolistPropsType) => {
                 <input
                   type={"checkbox"}
                   checked={task.isDone}
-                  onChange={() => { changeTaskStatus(task.id) }}
-                  
+                  onChange={() => { changeTaskStatus(todolistId, task.id) }}
+
                 />
                 <span className={task.isDone ? "task_done" : "task"} >{task.title}</span>
                 <button onClick={() => onCkickRemoveTaskHandler(task.id)}>X</button>
