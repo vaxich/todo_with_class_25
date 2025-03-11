@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import './App.css'
 import { TaskType, TodoList } from "./Todolist";
+import { AddItemForm } from "./AddItemForm";
 
 
 
@@ -25,12 +26,6 @@ function App() {
   ]
   )
 
-  // const [tasks, setTasks] = useState<Array<TaskType>>([
-  //   { id: crypto.randomUUID(), isDone: true, title: 'HTML&CSS' },
-  //   { id: crypto.randomUUID(), isDone: true, title: 'JS' },
-  //   { id: crypto.randomUUID(), isDone: false, title: 'React' },
-  //   { id: crypto.randomUUID(), isDone: true, title: 'Redux' }
-  // ])
 
 
 
@@ -76,6 +71,19 @@ function App() {
     setTasks({ ...tasks, [todolistId]: [newTask, ...tasks[todolistId]] })// копируем таски и создаём и сразу добавляем новый объект
   }
 
+  const addTodolist = (newTitle: string) => {
+    const newTodolistId = crypto.randomUUID()
+    const newTodolist : todolistType = {
+      id: newTodolistId ,
+      title: newTitle,
+      filter: "All"
+    }
+
+    setTodolists([...todolists, newTodolist]);
+    setTasks({...tasks, [newTodolistId]: []});
+
+  }
+
   const changeTaskStatus = (todolistId: string, taskId: string) => {
 
     // let newTasks = tasks.map(task => task.id === taskId
@@ -85,8 +93,19 @@ function App() {
     setTasks({ ...tasks, [todolistId]: tasks[todolistId].map(task => task.id === taskId ? { ...task, isDone: !task.isDone } : task) })
   }
 
+  const updateTaks = (todolistId: string, taskId: string, newTitle: string) => {
+    setTasks({ ...tasks, [todolistId]: tasks[todolistId].map(task => task.id === taskId ? { ...task, title: newTitle } : task) })
+  }
+
+  const updateTodolist = (todolistId: string ,  newTitle: string) => {
+    //let newState = todolists.map( tl => tl.id == todolistId ? {...tl, title:newTitle } : tl)
+    setTodolists( todolists.map( tl => tl.id == todolistId ? {...tl, title:newTitle } : tl))
+  }
+
   return (
     <div className="App">
+      <AddItemForm onClick={addTodolist} />
+
       {todolists.map(tl => {
 
         let tasksForTodolist = tasks[tl.id];
@@ -98,6 +117,8 @@ function App() {
           tasksForTodolist = tasks[tl.id].filter(task => task.isDone === true)
         }
 
+
+
         return (
           <TodoList
             todolistId={tl.id}
@@ -108,7 +129,10 @@ function App() {
             addTask={addTask}
             changeTaskStatus={changeTaskStatus}
             removeTodolist={removeTodolist}
-            changeFilter={changeFilter} />
+            changeFilter={changeFilter} 
+            updateTask={updateTaks}
+            updateTodolist={updateTodolist}
+            />
         )
       })}
 

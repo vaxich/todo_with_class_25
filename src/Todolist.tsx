@@ -3,6 +3,8 @@
 import { ChangeEvent, KeyboardEvent, useState } from 'react';
 import { FiltersType } from './App';
 import './App.css';
+import { AddItemForm } from './AddItemForm';
+import { EditableSpan } from './EditableSpan';
 
 export type TaskType = {
   id: string
@@ -21,14 +23,13 @@ type TodolistPropsType = {
   addTask: (todolistId: string, newTaskTitle: string) => void
   changeTaskStatus: (todolistId: string, taskId: string) => void
   removeTodolist: (todolistId: string) => void
+  updateTask: (todolistId: string, taskId: string, newTitle: string) => void
+  updateTodolist: (todolistId: string, newTitle: string) => void
 }
 
 export const TodoList = (props: TodolistPropsType) => {
 
-  const [inputValue, setInputValue] = useState("");
-  const [inputError, setinputError] = useState(false);
-
-  const { title, tasks, todolistId, removeTask, changeFilter, addTask, changeTaskStatus, removeTodolist, filterValue } = props
+  const { title, tasks, todolistId, removeTask, changeFilter, addTask, changeTaskStatus, removeTodolist, filterValue, updateTask, updateTodolist } = props
 
   const onCkickRemoveTaskHandler = (taskId: string) => {
     removeTask(todolistId, taskId)
@@ -42,66 +43,37 @@ export const TodoList = (props: TodolistPropsType) => {
     removeTodolist(todolistId)
   }
 
-
-
-
-  const addTaskOnClick = () => {
-    const trimmedTitle = inputValue.trim()
-    if (trimmedTitle) {
-      addTask(todolistId, trimmedTitle)
-    } else {
-      setinputError(true)
-    }
-
-    setInputValue("")
+  const addTaskHandler = (newTitle: string) => {
+    addTask(todolistId, newTitle)
   }
 
-  const onKeyDownAddTask = (event: KeyboardEvent<HTMLInputElement>) => {
-    event.key === "Enter" && addTaskOnClick()
+  const updateTodolistHandler = (newTitle: string) => {
+    updateTodolist(todolistId, newTitle)
   }
 
-  const onChangeSetNewTitle = (el: ChangeEvent<HTMLInputElement>) => {
-    inputError && setinputError(false)
-    setInputValue(el.target.value)
+  const updateTaskHandler = (taskId: string, newTitle: string) => {
+    updateTask(todolistId, taskId, newTitle)
   }
 
-
-  const isAddBtnDisabled = !inputValue || inputValue.length > 15
-
-  const messageForUser = inputError
-    ? <span style={{ color: "red" }}>наименование не может быть пустым</span>
-    : inputValue.length <= 15
-      ? <span>введите новыю таску</span>
-      : <span style={{ color: "red" }}>максимум 15 символов</span>
 
   return (
     <div className='todolist'>
-      <h3>{title}</h3>
+
+      <EditableSpan title={title} onClick={updateTodolistHandler} />
       <button onClick={removeTodolistHandler}>X</button>
       <div>
-
-        <input
-          value={inputValue}
-          onChange={onChangeSetNewTitle}
-          onKeyDown={onKeyDownAddTask}
-          className={inputError ? "input_error" : ""}
-        />
-        <button
-          disabled={isAddBtnDisabled}
-          onClick={() => {
-            addTaskOnClick()
-
-          }}
-        >+</button>
-        <div>
-          {messageForUser}
-        </div>
+        <AddItemForm onClick={addTaskHandler} />
 
       </div>
       <ul>
         {tasks.length === 0
           ? <span>you list is empty</span>
           : tasks.map(task => {
+
+            // const updateTaskHandler = (newTitle: string) => {
+            //   updateTask(todolistId, task.id, newTitle)
+            // }
+
             return (
               <li key={task.id}>
                 <input
@@ -110,7 +82,8 @@ export const TodoList = (props: TodolistPropsType) => {
                   onChange={() => { changeTaskStatus(todolistId, task.id) }}
 
                 />
-                <span className={task.isDone ? "task_done" : "task"} >{task.title}</span>
+                {/* <span className={task.isDone ? "task_done" : "task"} >{task.title}</span> */}
+                <EditableSpan title={task.title} isDone={task.isDone} onClick={ (newTitle)=> updateTaskHandler(task.id , newTitle)} />
                 <button onClick={() => onCkickRemoveTaskHandler(task.id)}>X</button>
               </li>
             )
